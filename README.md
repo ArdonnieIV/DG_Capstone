@@ -4,7 +4,7 @@
 ## How to setup
 
 ### First, download the compressed yoga folder 
-When exporting, make sure to call the golder 'yoga' : https://drive.google.com/file/d/1-vz4RgA-VMX3J1UXMpWwZGkLEoutOdIs/view?usp=share_link
+When exporting, make sure to call the folder 'yoga' : https://drive.google.com/file/d/1-vz4RgA-VMX3J1UXMpWwZGkLEoutOdIs/view?usp=share_link
 
 ### Second, download pytorch models from drive
 Place exported files into the model folder : https://drive.google.com/file/d/1-vz4RgA-VMX3J1UXMpWwZGkLEoutOdIs/view?usp=share_link
