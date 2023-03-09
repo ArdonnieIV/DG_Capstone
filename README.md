@@ -13,7 +13,7 @@ The easiest way to manage entire python versions is with Anaconda : https://www.
 Once you have Anaconda installed and you have a terminal open in this repository, you can run :
 
 # Create virtual environment
-! conda create -n python=3.7 yourenv pip
+! conda create -n yourenv  python=3.7 pip
 
 # Activate your virtual environment
 ! conda activate yourenv
