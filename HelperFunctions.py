@@ -33,11 +33,12 @@ def getFeatureVector(landmark):
     
     # We don't care about head locations aside from the nose, so here are the indexes we care about.
     indexesToUse = [0, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32]
-    formattedRow = np.empty(0)
-    for index in indexesToUse:
+    formattedRow = np.zeros((23,3), dtype=float)
+    for i, index in enumerate(indexesToUse):
         # Let's get the two angles mod 2π.
         newTriple = cartesianToSpherical(getLocation(landmark, index) - CHEST_LOCATION_CARTESIAN) + PHI_ADJUSTMENT
         newTriple[1] = newTriple[1] % (2 * np.pi)
         newTriple[2] = newTriple[2] % (2 * np.pi)
-        formattedRow = np.append(formattedRow, newTriple)
+        for j in range(3):
+            formattedRow[i][j] = newTriple[j]
     return formattedRow
