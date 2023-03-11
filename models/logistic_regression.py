@@ -1,5 +1,5 @@
 from sklearn.linear_model import LogisticRegression
-import HelperFunctions
+import dataloader
 
 
 # retrieve these from helper functions
