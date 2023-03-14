@@ -37,13 +37,13 @@ class DataLoader():
             test_data_size  += test_class_amount
             if i == 0:
                 X_train = self.data[pose][0:train_class_amount, :]
-                X_test = self.data[pose][train_class_amount:-1, :]
+                X_test = self.data[pose][train_class_amount:, :]
 
                 y_train = np.array([i for j in range(train_class_amount)])
                 y_test  = np.array([i for j in range(test_class_amount)])
             else:
                 X_train = np.concatenate((X_train, self.data[pose][0:train_class_amount, :]), axis=0)
-                X_test = np.concatenate((X_test, self.data[pose][train_class_amount:-1, :]), axis=0)
+                X_test = np.concatenate((X_test, self.data[pose][train_class_amount:, :]), axis=0)
 
                 y_train = np.concatenate((y_train, np.array([i for j in range(train_class_amount)])))
                 y_test  = np.concatenate((y_test, np.array([i for j in range(test_class_amount)])))
