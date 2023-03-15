@@ -19,8 +19,13 @@ y_train = None
 X_test = None
 y_test = None
 
+X_valid = None
+y_valid = None
+
 dl = DataLoader()
-X_train, y_train, X_test, y_test = dl.get_train_test_split()
+X_train, y_train, X_test, y_test, X_valid, y_valid = dl.get_train_test_split()
+
+print(X_train.shape, y_train.shape, X_test.shape, y_test.shape, X_valid.shape, y_valid.shape)
 
 print("Data loaded!")
 
@@ -32,6 +37,7 @@ print("Beginning fitting of GMMs.")
 
 train_accuracy = []
 test_accuracy = []
+valid_accuracy = []
 for num_components in range(1, 11):
     print("Now fitting with", num_components, "components.")
     classGMMs = np.empty(num_classes, dtype = GaussianMixture)
@@ -64,25 +70,32 @@ for num_components in range(1, 11):
     test_predictions = np.zeros(y_test.shape[0])
     for i, sample in tqdm(enumerate(X_test)):
         test_predictions[i] = predict(sample)
-
+        
+    valid_predictions = np.zeros(y_valid.shape[0])
+    for i, sample in tqdm(enumerate(X_valid)):
+        valid_predictions[i] = predict(sample)
         
     train_accuracy.append(balanced_accuracy_score(y_true = y_train,
                                              y_pred = train_predictions))
     test_accuracy.append(balanced_accuracy_score(y_true = y_test,
                                          y_pred = test_predictions))
+    valid_accuracy.append(balanced_accuracy_score(y_true = y_valid,
+                                         y_pred = valid_predictions))
     
     print(train_accuracy[len(train_accuracy)-1])
     print(test_accuracy[len(test_accuracy)-1])
+    print(valid_accuracy[len(valid_accuracy)-1])
     
 
 print("Train Accuracy:", train_accuracy)
 print("Test Accuracy: ", test_accuracy)
+print("Validation Accuracy: ", valid_accuracy)
 
 fig, ax = plt.subplots(figsize = (12, 6))
 
 num_components_x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 ax.plot(num_components_x, train_accuracy, color = "orange", label = "Training Accuracy")
-ax.plot(num_components_x, test_accuracy, color = "blue", label = "Test Accuracy")
+ax.plot(num_components_x, valid_accuracy, color = "blue", label = "Validation Accuracy")
 ax.set_xlabel("Number of Components")
 ax.set_ylabel("Accuracy")
 ax.legend();
