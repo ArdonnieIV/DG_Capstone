@@ -3,9 +3,6 @@ from sklearn.metrics import balanced_accuracy_score
 from dataloader.dataloader import DataLoader
 import numpy as np
 
-
-
-
 # retrieve train/test split from helper functions as well
 X_train = None
 y_train = None
@@ -14,7 +11,7 @@ X_test = None
 y_test = None
 
 dl = DataLoader()
-X_train, y_train, X_test, y_test = dl.get_train_test_split()
+X_train, y_train, X_test, y_test, X_valid, y_valid = dl.get_train_test_split()
 
 print("X train size:", X_train.shape)
 print("Y train size:", y_train.shape)

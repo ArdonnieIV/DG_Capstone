@@ -17,6 +17,8 @@ class DataLoader():
         for file in self.myDataFiles:
             posePath = os.path.join(self.myDataPath, file)
             self.data[file[:-5]] = np.load(posePath, allow_pickle=True)
+            self.data[file[:-5]].shape = self.data[file[:-5]].shape[0], self.data[file[:-5]].shape[1] * self.data[file[:-5]].shape[2]
+
 
     def get_train_test_split(self, train_split = .6, test_split = .2):
         """Returns data in format training_data, testing_data"""
