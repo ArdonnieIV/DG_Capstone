@@ -1,71 +1,201 @@
-import os
+from torch.utils.data import Dataset
+from torch.nn.functional import one_hot
+import matplotlib.pyplot as plt
 import numpy as np
-import math
+import torch
+import copy
 
 
-class DataLoader():
-    def __init__(self):
-        self.num_features = 69 # can change this!
+def load_data(allPoses, type, percentile=None):
+    """
+    Load the data for the specified pose type and return it split into train, validation, and test sets.
 
-        myPath = os.getcwd()
-        self.myDataPath = os.path.join(myPath, 'data')
-        self.myDataFiles = os.listdir(self.myDataPath)
+    Parameters:
+    allPoses (list): A list of strings representing the names of the yoga poses.
+    type (str): A string representing the type of data to load, either 'filtered', 'fixed', or 'raw'.
+    percentile (int): If type is 'filtered', the percentile used to create the filter.
+
+    Returns:
+    A tuple containing the train, validation, and test sets for the specified pose type.
+    """
+    train = {}
+    val = {}
+    test = {}
+
+    validType = ['raw', 'fixed', 'filtered']
+
+    if type not in validType:
+        # Throw an error if the specified type is not valid
+        raise ValueError(f"Invalid type '{type}' specified.")
+
+    # Iterate over each pose and load the corresponding data
+    for pose in allPoses:
+
+        if type == 'filtered':
+            # Load filtered data from corresponding folder
+            train[pose] = np.load(f'data/fixed/train/{pose}.npy', allow_pickle=True)
+            val[pose] = np.load(f'data/fixed/val/{pose}.npy', allow_pickle=True)
+            test[pose] = np.load(f'data/fixed/test/{pose}.npy', allow_pickle=True)
+
+        else:
+            # Load fixed or raw data from corresponding folders
+            train[pose] = np.load(f'data/{type}/train/{pose}.npy', allow_pickle=True)
+            val[pose] = np.load(f'data/{type}/val/{pose}.npy', allow_pickle=True)
+            test[pose] = np.load(f'data/{type}/test/{pose}.npy', allow_pickle=True)
+
+    if type == 'filtered':
+        train = create_filter(train, percentile)
+
+    return train, val, test
+
+    #################################################################################
 
 
-        # read in data from .npy files
-        self.data = {}
-        for file in self.myDataFiles:
-            posePath = os.path.join(self.myDataPath, file)
-            self.data[file[:-5]] = np.load(posePath, allow_pickle=True)
-            self.data[file[:-5]].shape = self.data[file[:-5]].shape[0], self.data[file[:-5]].shape[1] * self.data[file[:-5]].shape[2]
+class PoseLoader(Dataset):
 
+    def __init__(self, data, dataset_type: str = 'Train', oneHot=False):
 
-    def get_train_test_split(self, train_split = .6, test_split = .2):
-        """Returns data in format training_data, testing_data"""
+        # Save the type of dataset (train, validation or test) in the class variable
+        self.dataset_type = dataset_type
 
-        train_data_size = 0
-        test_data_size  = 0
-        valid_data_size  = 0
-
-        X_train = None
-        X_test  = None
-        X_valid = None
-
-        y_train = None
-        y_test  = None
-        y_valid = None
+        # Flattened (23, 3) cartesian pose estimation
+        # Define the length of the input as 23 x 3 = 69
+        self.input_length = 69 
         
-        for i, pose in enumerate(self.data):
-            train_class_amount = math.floor(self.data[pose].shape[0] * train_split)
-            train_data_size += train_class_amount
-            
-            test_class_amount = math.floor(self.data[pose].shape[0] * test_split)
-            test_data_size  += test_class_amount
-            
-            valid_class_amount = self.data[pose].shape[0] - train_class_amount - test_class_amount
-            valid_data_size  += valid_class_amount
-            
-            if i == 0:
-                X_train = self.data[pose][0:train_class_amount, :]
-                X_test = self.data[pose][train_class_amount:train_class_amount+test_class_amount, :]
-                X_valid = self.data[pose][train_class_amount+test_class_amount:, :]
-
-                y_train = np.array([i for j in range(train_class_amount)])
-                y_test  = np.array([i for j in range(test_class_amount)])
-                y_valid = np.array([i for j in range(valid_class_amount)])
-            else:
-                X_train = np.concatenate((X_train, self.data[pose][0:train_class_amount, :]), axis=0)
-                X_test = np.concatenate((X_test, self.data[pose][train_class_amount:train_class_amount+test_class_amount, :]), axis=0)
-                X_valid = np.concatenate((X_valid, self.data[pose][train_class_amount+test_class_amount:, :]), axis=0)
-
-                y_train = np.concatenate((y_train, np.array([i for j in range(train_class_amount)])))
-                y_test  = np.concatenate((y_test, np.array([i for j in range(test_class_amount)])))
-                y_valid  = np.concatenate((y_valid, np.array([i for j in range(valid_class_amount)])))
+        # Number of poses
+        # Get the length of the input data dictionary to find the number of poses
+        self.output_length = len(data)
         
-        return X_train, y_train, X_test, y_test, X_valid, y_valid
+        # Get a list of all the pose names from the dictionary keys
+        self.poseNameList = list(data.keys())
+        
+        # Create a combined matrix of all the pose estimations
+        self.combined_matrix = np.concatenate(list(data.values()), axis=0)
+        
+        # Create a label matrix that assigns a unique label for each pose
+        self.label_matrix = np.hstack([[i]*len(data[k]) for i,k in enumerate(self.poseNameList)])
 
-dl = DataLoader()
-X_train, y_train, X_test, y_test, X_valid, y_valid = dl.get_train_test_split()
-print("Number of training points = " + str(X_train.shape[0]))
-print("Number of testing points = "+ str(X_test.shape[0]))
-print("Number of validation points = "+ str(X_valid.shape[0]))
+        # One hot also implies both x and y are tensors instead of numpy arrays
+        if oneHot:
+            # Convert to tensor
+            self.combined_matrix = torch.from_numpy(self.combined_matrix).float()
+            # Convert to one hot tensors
+            self.label_matrix = one_hot(torch.from_numpy(self.label_matrix).long(), 
+                                        num_classes=self.output_length).float()
+
+    def get_features(self):
+        # Return the feature matrix
+        return self.combined_matrix
+    
+    def get_labels(self):
+        # Return the label matrix
+        return self.label_matrix
+    
+    def __len__(self) -> int:
+        # Assert that the length of the combined matrix and label matrix are equal
+        assert(len(self.combined_matrix) == len(self.label_matrix))
+        # Return the length of the combined matrix
+        return len(self.combined_matrix)
+    
+    def __getitem__(self, idx) -> dict:
+
+        # Create a dictionary to return the input and label for the given index
+        return_dict = {
+            'input': self.combined_matrix[idx],
+            'label': self.label_matrix[idx]
+        }
+
+        # Return the dictionary
+        return return_dict
+    
+    #################################################################################
+    
+
+def get_mahalanobis_distance(allVectors, pose):
+
+    matrix = copy.deepcopy(allVectors[pose])
+
+    # Calculate the covariance matrix
+    cov = np.cov(matrix.T)
+
+    # Add a small amount of regularization to the diagonal of the covariance matrix
+    cov += 1e-8 * np.identity(cov.shape[0])
+
+    # Calculate the inverse of the covariance matrix
+    inv_cov = np.linalg.inv(cov)
+
+    # Calculate the mean of each column of the matrix
+    column_means = np.mean(matrix, axis=0)
+
+    # Calculate the Mahalanobis distance for each row
+    return np.sqrt(np.sum(np.dot((matrix - column_means), inv_cov) * (matrix - column_means), axis=1))
+    
+    #################################################################################
+
+def view_get_mahalanobis_distance(allVectors):
+
+    all_distances = np.concatenate([get_mahalanobis_distance(allVectors, pose) for pose in allVectors])
+    
+    # Plot a histogram of the distances to visualize the distribution
+    plt.hist(all_distances, bins=75)
+    plt.xlabel("Mahalanobis Distance")
+    plt.ylabel("Frequency")
+    plt.show()
+
+def find_threshold(allVectors, threshold_percentile):
+
+    # Concatenate the Mahalanobis distance of all vectors with respect to their group
+    all_distances = np.concatenate([get_mahalanobis_distance(allVectors, pose) for pose in allVectors])
+    
+    # Calculate the percentile threshold for the Mahalanobis distance distribution
+    threshold = np.percentile(all_distances, threshold_percentile)
+
+    return threshold
+
+    #################################################################################
+
+
+def get_bad_indicies(allVectors, threshold):
+
+    allBads = {}
+    for pose in allVectors:
+
+        distances = get_mahalanobis_distance(allVectors, pose)
+
+        # Find the indices of rows with distance greater than a threshold
+        allBads[pose] = np.argwhere(distances > threshold)
+
+    return allBads
+
+    #################################################################################
+
+
+def remove_rows(matrix, indices):
+    """
+    Returns a copy of matrix with the rows at the given indices removed.
+    """
+    matrix = copy.deepcopy(matrix)
+    return np.delete(matrix, indices, axis=0)
+
+    #################################################################################
+
+
+def create_filter(allVectors, percentile):
+
+    # Find the threshold values for each percentile
+    threshold = find_threshold(allVectors, percentile)
+
+    # Find the outlier indicies of poses in feature matrix
+    allBads = get_bad_indicies(allVectors, threshold)
+
+    # Create a filtered version of the training data for each percentile
+    allFiltered = {}
+
+    for pose in allVectors:
+        # Remove the rows that exceed the threshold value for the given percentile
+        allFiltered[pose] = remove_rows(allVectors[pose], allBads[pose])
+    
+    # Save the filtered data to files
+    return allFiltered
+
+    #################################################################################
