@@ -1,3 +1,5 @@
+<img src=yoga.gif width="300">
+
 # Data Goblins 🔥 Modeling Human Behavior With Machine Learning 🤖
 
 ## How to setup

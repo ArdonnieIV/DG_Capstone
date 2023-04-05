@@ -62,7 +62,6 @@ def center_chest(pose):
         newTriple[1] *= -1
         formattedRow = np.append(formattedRow, newTriple)
 
-    formattedRow.shape = 23, 3
     return formattedRow
 
     #################################################################################
@@ -154,7 +153,7 @@ def plot(pose):
     ax.set_ylabel("y")
     ax.set_zlabel("z")
 
-    ax.view_init(90, -90)
+    ax.view_init(90, 270)
     plt.show()
 
     #################################################################################
