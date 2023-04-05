@@ -3,7 +3,11 @@ import random
 import os
 import cv2
 import mediaPipe
+import torch
 # TODO: add import for model class
+from IPython.display import clear_output, Image
+from models.fnn import PoseFFNN
+from helper import plot, get_pose_names, center_chest
 
 app = Flask(__name__)
 
@@ -28,6 +32,13 @@ def predict():
 
 @app.route('/video_predict')
 def video_predict():
+    # create the model
+    PATH_TO_SAVED_MODEL = ''
+    model = torch.load(PATH_TO_SAVED_MODEL)
+
+    # get poses
+    # Get a list of all the pose names
+    poses = get_pose_names()
     # Open the default camera (usually the webcam)
     cap = cv2.VideoCapture(0)
 
@@ -49,14 +60,17 @@ def video_predict():
                     featureVector = center_chest(results.pose_landmarks.landmark)
                     plot(featureVector)
                     featureVector = torch.Tensor(featureVector.flatten())
-                    pred = model(featureVector.to(device)).argmax(dim=0, keepdim=True)
-                    print(poses[pred])
+                    pred = model(featureVector).argmax(dim=0, keepdim=True)
+                    pose_name = poses[pred]
+                    print(pose_name)
+                    break
                 else:
                     print('bad image')
 
     # Release the camera and close all windows
     cap.release()
     cv2.destroyAllWindows()
+    return jsonify({'pose_name': pose_name})
 
 
 @app.route('/get_pose')
