@@ -220,10 +220,14 @@ def yogaToVector(myYogaPath, mediaPipe):
     #################################################################################
 
 
-def get_pose_names() -> list:
+def get_pose_names(type='normal') -> list:
+
+    fileName = 'poses.txt'
+    if type == 'clean':
+        fileName = 'cleanPoses.txt'
 
     # open the text file for reading
-    with open('poses.txt', 'r') as f:
+    with open(fileName, 'r') as f:
         # read the contents of the file as a string
         contents = f.read()
 

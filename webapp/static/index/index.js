@@ -6,5 +6,4 @@ setInterval(() => {
         .then(text => {
             prediction.innerText = text;
         })
-}, 1000);
-
+}, 750);
