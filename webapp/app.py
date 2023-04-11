@@ -31,13 +31,25 @@ model = PoseFFNN(input_dim=69, output_dim=82)
 model.load_state_dict(torch.load('models/fnn_parameters.pth', map_location=device))
 model.to(device)
 
+images_path = "webapp/static/trainExamples/"
+
+exampleCounter = 0
+images = os.listdir(images_path)
+
 def get_random_image():
 
-    global currentTrainPose
+    global exampleCounter
+    global images
 
-    images_path = "webapp/static/trainExamples/"
-    images = os.listdir(images_path)
-    random_image = random.choice(images)
+    if exampleCounter == 0:
+        random.shuffle(images)
+
+    random_image = images[exampleCounter]
+
+    exampleCounter += 1
+    if exampleCounter == len(images):
+        exampleCounter = 0
+
     currentTrainPose = random_image[:-4]
 
     return currentTrainPose
@@ -70,8 +82,6 @@ def video():
 
 @app.route('/predict')
 def get_prediction():
-
-    global currentTrainPose
 
     ret, frame = camera.read()
 

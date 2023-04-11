@@ -66,6 +66,37 @@
             text-align: center;
             margin-top: 20px;
         }
+
+        .progress {
+          position: relative; /* Make the progress container position relative */
+        }
+
+        .threshold {
+          position: absolute;
+          width: 5px;
+          height: 100%;
+          background-color: black;
+          left: 70%; /* Adjust the threshold position with percentage */
+          top: 50%; /* Adjust the threshold position with percentage */
+          transform: translateY(-50%); /* Center the threshold vertically */
+        }
+
+        .countdown-container {
+          height: 100%;
+        }
+
+        .countdown-time {
+          font-size: 2rem;
+          height: 64px;
+          font-weight: bold;
+        }
+
+        .score-display {
+          font-size: 2rem;
+          height: 64px;
+          font-weight: bold;
+        }
+
     </style>
 
     <!-- Custom styles for this template -->
@@ -73,12 +104,12 @@
 
 </head>
 
-<body class="d-flex h-100 text-center text-white bg-dark">
+<body class="d-flex h-100 text-center text-white bg-dark gradient">
 
     <div class="cover-container d-flex w-600 h-100 p-3 mx-auto flex-column">
         <header class="mb-auto">
           <div>
-            <h1 class="float-md-start mb-0">Yog.ai</h1>
+            <h1 class="float-md-start mb-0">YOG.Ai</h1>
             <nav class="nav nav-masthead justify-content-center float-md-end">
                 <a class="nav-link" href="/">Live</a>
                 <a class="nav-link active" aria-current="page" href="#">Train</a>
@@ -90,6 +121,7 @@
           <div id="parentContainer">
             <div id="left">
               <img src="{{ url_for('video') }}" class="img-fluid" alt="Responsive image">
+              <h2 id="pred" style="padding-top: 10px;" >None</h2>
             </div>
             <div id="right">
               <div class="image-container">
@@ -98,17 +130,33 @@
                   <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"></path>
                   <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"></path>
                 </svg>
+              <h2 id="exam" style="padding-top: 10px;">None</h2>
               </div>
             </div>
           </div>
           <div class="progress">
-            <div id="confBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: 75%"></div>
-          </div>
-          <div id="prediction-container" class="text-center">
-            <h3 id="pred" >None</h3>
-            <h3 id="conf" >None</h3>
+            <div id="confBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+              <span class="threshold"></span>
+            </div>
           </div>
 
+          <div id="prediction-container" class="text-center">
+            <div class="row align-items-center justify-content-center">
+              <div class="col-md-6">
+                <h3 id="conf">None</h3>
+                <h3 id="corr">None</h3>
+              </div>
+              <div class="col-md-6">
+                <div class="countdown-container d-flex justify-content-center align-items-center">
+                  <div class="d-flex flex-row align-items-center">
+                    <button id="start-btn" class="btn btn-primary btn-lg bg-white mb-3" style="color: #908376; margin-right: 20px;">Start Clock</button>
+                    <div class="countdown-time mr-3">01:00</div>
+                    <div id="score" class="score-display">Score: 0</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
           
         </main>
         
@@ -121,16 +169,19 @@
     <script>
 
       const prediction = document.getElementById('pred');
+      const exampleTag = document.getElementById('exam');
       const confidence = document.getElementById('conf');
+      const corrTotal = document.getElementById('corr');
       const progressBar = document.getElementById('confBar');
-      const myBody = document.getElementById('confBar');
 
       var examplepose = null;
+      var correctTotal = 5;
 
       function changeImage() {
           $.post("/change-image", function(data) {
               examplepose = data;
-              $("#exampleImage").attr("src", "{{ url_for('static', filename='trainExamples/') }}" + data + ".jpg");
+              exampleTag.innerText = examplepose;
+              $("#exampleImage").attr("src", "{{ url_for('static', filename='trainExamples/') }}" + examplepose + ".jpg");
           });
       }
 
@@ -138,18 +189,37 @@
           fetch('/predict')
               .then(response => response.json())
               .then(data => {
-                prediction.innerText = "Prediction: " + data.label;
-                confidence.innerText = "Confidence: " + data.confidence;
-                var confFloat = (parseFloat(data.confidence) * 100)
-                progressBar.style.width = confFloat.toFixed(2) + '%'
-                if (data.label === examplepose) {
-                  if (confFloat > 70) {
-                    console.log("Prediction matches example pose.");
+                prediction.innerText = data.label;
+                var confFloat = (parseFloat(data.confidence) * 100);
+
+                if (data.label == examplepose) {
+                  progressBar.style.width = confFloat.toFixed(2) + '%';
+                  confidence.innerText = "Confidence: " + data.confidence;
+                }
+                else {
+                  progressBar.style.width = "0%";
+                  confidence.innerText = "Confidence: 0.0";
+                }
+                
+                if (data.label == examplepose && confFloat > 70) {
+
+                  progressBar.style.backgroundColor = "green";
+
+                  correctTotal -= 1;
+                  if (correctTotal == 0) {
+                    correctTotal = 5;
+                    updateScore();
                     changeImage();
                   }
                 }
+                else {
+                  progressBar.style.backgroundColor = "red";
+                  correctTotal = 5;
+                }
+
+                corrTotal.innerText = "Hold : " + correctTotal.toString();
               })
-      }, 1200);
+      }, 800);
 
       window.addEventListener('load', function() {
         changeImage();
@@ -162,6 +232,49 @@
       }
 
       setInterval(shiftBackground, 1000);
+
+      var timer = null;
+      var score = 0;
+
+      function startCountdown() {
+        var timeLeft = 60;
+        var countdownElem = document.querySelector('.countdown-time');
+        countdownElem.textContent = '01:00';
+        resetScore();
+
+        timer = setInterval(function() {
+          timeLeft--;
+
+          var minutes = Math.floor(timeLeft / 60);
+          var seconds = timeLeft % 60;
+          var formattedTime = minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
+          countdownElem.textContent = formattedTime;
+
+          if (timeLeft == 0) {
+            clearInterval(timer);
+            timer = null;
+            document.querySelector('#start-btn').disabled = false;
+          }
+        }, 1000);
+
+        document.querySelector('#start-btn').disabled = true;
+      }
+
+      document.querySelector('#start-btn').addEventListener('click', function() {
+        if (!timer) {
+          startCountdown();
+        }
+      });
+
+      function updateScore() {
+        score++;
+        document.querySelector('#score').textContent = 'Score: ' + score;
+      }
+
+      function resetScore() {
+        score = 0; // assuming score is a variable that holds the current score value
+        document.getElementById("score").innerHTML = "Score: " + score;
+      }
       
     </script>
 
