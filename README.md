@@ -23,6 +23,9 @@ Once you have Anaconda installed and you have a terminal open in this repository
 # Install dependencies
 ! pip install -r requirements.txt
 
+# Run The Webapp
+! python -m webapp.py
+
 ## Notes
 
 I highly recommend using vscode for this as it has the ability to detect environments and allows you to easily run jupyter notebooks with them.
