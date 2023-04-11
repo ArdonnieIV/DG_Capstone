@@ -55,3 +55,27 @@ def print_worst_cm(cm, total):
 
         if i==total:
             break
+    
+    print()
+
+def print_best_cm(cm, total):
+
+    print(f'Top {total} worst cases from Confusion Matrix.\n')
+    poses = get_pose_names()
+
+    allGoodScores = {}
+    for i in range(82):
+        allGoodScores[poses[i]] = cm[i][i]
+
+    allGoodScores = {k: v for k, v in sorted(allGoodScores.items(), key=lambda item: item[1], reverse=True)}
+
+    print('pose\tpercent')
+    for i, pose in enumerate(allGoodScores.keys()):
+
+        print(f'{pose}\t{allGoodScores[pose]:.2f}')
+
+        if i==total:
+            break
+    
+    print()
+    

@@ -41,6 +41,31 @@
           -webkit-border-radius:15px;
           border-radius:15px;
         }
+
+        #exampleImage {
+          width: 656px;
+          height: 481px;
+          object-fit: fill;
+        }
+
+        .image-container {
+            position: relative;
+        }
+
+        #refresh-button {
+            position: absolute;
+            top: 0;
+            right: 0;
+        }
+        
+        .bi.bi-arrow-clockwise {
+          color: black;
+        }
+
+        #prediction-container {
+            text-align: center;
+            margin-top: 20px;
+        }
     </style>
 
     <!-- Custom styles for this template -->
@@ -50,10 +75,10 @@
 
 <body class="d-flex h-100 text-center text-white bg-dark">
 
-    <div class="cover-container d-flex w-200 h-100 p-3 mx-auto flex-column">
+    <div class="cover-container d-flex w-600 h-100 p-3 mx-auto flex-column">
         <header class="mb-auto">
           <div>
-            <h1 class="float-md-start mb-0">Yoga Trainer</h1>
+            <h1 class="float-md-start mb-0">Yog.ai</h1>
             <nav class="nav nav-masthead justify-content-center float-md-end">
                 <a class="nav-link" href="/">Live</a>
                 <a class="nav-link active" aria-current="page" href="#">Train</a>
@@ -62,8 +87,29 @@
         </header>
 
         <main class="px-3">
-          <img src="{{ url_for('video') }}" class="img-fluid" alt="Responsive image">
-          <h1 id="pred" style="padding: 20px">None</h1>
+          <div id="parentContainer">
+            <div id="left">
+              <img src="{{ url_for('video') }}" class="img-fluid" alt="Responsive image">
+            </div>
+            <div id="right">
+              <div class="image-container">
+                <img id="exampleImage" class="img-fluid" alt="Responsive image">
+                <svg id="refresh-button" xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="black" class="bi bi-arrow-clockwise" viewBox="0 0 16 16" onclick="changeImage()">
+                  <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"></path>
+                  <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div class="progress">
+            <div id="confBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: 75%"></div>
+          </div>
+          <div id="prediction-container" class="text-center">
+            <h3 id="pred" >None</h3>
+            <h3 id="conf" >None</h3>
+          </div>
+
+          
         </main>
         
         <footer class="mt-auto text-white-50">
@@ -72,7 +118,53 @@
     </div>
 
     
-    
+    <script>
+
+      const prediction = document.getElementById('pred');
+      const confidence = document.getElementById('conf');
+      const progressBar = document.getElementById('confBar');
+      const myBody = document.getElementById('confBar');
+
+      var examplepose = null;
+
+      function changeImage() {
+          $.post("/change-image", function(data) {
+              examplepose = data;
+              $("#exampleImage").attr("src", "{{ url_for('static', filename='trainExamples/') }}" + data + ".jpg");
+          });
+      }
+
+      setInterval(() => {
+          fetch('/predict')
+              .then(response => response.json())
+              .then(data => {
+                prediction.innerText = "Prediction: " + data.label;
+                confidence.innerText = "Confidence: " + data.confidence;
+                var confFloat = (parseFloat(data.confidence) * 100)
+                progressBar.style.width = confFloat.toFixed(2) + '%'
+                if (data.label === examplepose) {
+                  if (confFloat > 70) {
+                    console.log("Prediction matches example pose.");
+                    changeImage();
+                  }
+                }
+              })
+      }, 1200);
+
+      window.addEventListener('load', function() {
+        changeImage();
+      });
+
+      function shiftBackground() {
+        const colors = ["#8B7355", "#CCAA66", "#CDBE70", "#EEE8AA"];
+        const randomColor = colors[Math.floor(Math.random() * colors.length)];
+        document.body.style.backgroundColor = randomColor;
+      }
+
+      setInterval(shiftBackground, 1000);
+      
+    </script>
+
     <script src= {{ url_for("static",filename="index/index.js") }} ></script>
 
 </body>

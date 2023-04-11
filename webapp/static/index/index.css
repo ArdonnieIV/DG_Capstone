@@ -6,18 +6,21 @@
   text-shadow: none; /* Prevent inheritance from `body` */
 }
 
-
 /*
  * Base structure
  */
 
 body {
-  text-shadow: 0 .05rem .1rem rgba(0, 0, 0, .5);
-  box-shadow: inset 0 0 5rem rgba(0, 0, 0, .5);
+  text-shadow: 0 .1rem .4rem rgba(0, 0, 0, .5);
+  box-shadow: inset 0 0 ,.8rem rgba(0, 0, 0, .5);
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  background: linear-gradient(132deg, #DDBEA9, #C5A484, #908376);
 }
 
 .cover-container {
-  max-width: 42em;
+  max-width: 500em;
 }
 
 
@@ -45,4 +48,18 @@ body {
 .nav-masthead .active {
   color: #fff;
   border-bottom-color: #fff;
+}
+
+#parentContainer {
+  display: flex;
+}
+
+#left {
+  width: 50%;
+  padding: 20px;
+}
+
+#right {
+  width: 50%;
+  padding: 20px;
 }

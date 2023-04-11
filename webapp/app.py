@@ -1,4 +1,4 @@
-from flask import Flask,render_template,Response
+from flask import Flask,render_template,Response,jsonify
 import random
 import os
 import sys
@@ -10,7 +10,6 @@ from models.fnn import PoseFFNN
 from helper import center_chest, get_pose_names
 import mediapipe as mp
 import torch
-
 sys.path.append('..')
 
 app = Flask(__name__)
@@ -31,6 +30,17 @@ model = PoseFFNN(input_dim=69, output_dim=82)
 # Load the saved model parameters into the new model
 model.load_state_dict(torch.load('models/fnn_parameters.pth'))
 model.to(device)
+
+def get_random_image():
+
+    global currentTrainPose
+
+    images_path = "webapp/static/trainExamples/"
+    images = os.listdir(images_path)
+    random_image = random.choice(images)
+    currentTrainPose = random_image[:-4]
+
+    return currentTrainPose
 
 def generate_frames():
     while True:
@@ -61,6 +71,8 @@ def video():
 @app.route('/predict')
 def get_prediction():
 
+    global currentTrainPose
+
     ret, frame = camera.read()
 
     if ret:
@@ -74,11 +86,17 @@ def get_prediction():
             pred = output.argmax(dim=0, keepdim=True)
             confidence = str(round(probs[pred].item(), 2))
             label = poses[pred]
-            return Response(label + ' ' + confidence, mimetype='text/html')
+
+            return jsonify({'label':label, 'confidence':confidence})
         else:
             return Response("None", mimetype='text/html')
     else:
         return Response("None", mimetype='text/html')
+
+@app.route("/change-image", methods=["POST"])
+def change_image():
+    image_name = get_random_image()
+    return image_name
 
 if __name__ == "__main__":
     app.run(debug=True)

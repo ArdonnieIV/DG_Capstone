@@ -41,6 +41,11 @@
           -webkit-border-radius:15px;
           border-radius:15px;
         }
+
+        #prediction-container {
+            text-align: center;
+            margin-top: 20px;
+        }
     </style>
 
     <!-- Custom styles for this template -->
@@ -53,7 +58,7 @@
     <div class="cover-container d-flex w-200 h-100 p-3 mx-auto flex-column">
         <header class="mb-auto">
           <div>
-            <h1 class="float-md-start mb-0">Yoga Trainer</h1>
+            <h1 class="float-md-start mb-0">yog.ai</h1>
             <nav class="nav nav-masthead justify-content-center float-md-end">
               <a class="nav-link active" aria-current="page" href="#">Live</a>
               <a class="nav-link" href="/train">Train</a>
@@ -63,7 +68,10 @@
 
         <main class="px-3">
           <img src="{{ url_for('video') }}" class="img-fluid" alt="Responsive image">
-          <h1 id="pred" style="padding: 20px">None</h1>
+          <div id="prediction-container" class="text-center">
+            <h3 id="pred" >None</h3>
+            <h3 id="conf" >None</h3>
+          </div>
         </main>
         
         <footer class="mt-auto text-white-50">
@@ -71,7 +79,20 @@
         </footer>
     </div>
 
-    <script src= {{ url_for("static",filename="index/index.js") }} ></script>
+    <script>
+
+      const prediction = document.getElementById('pred');
+      const confidence = document.getElementById('conf');
+
+      setInterval(() => {
+          fetch('/predict')
+              .then(response => response.json())
+              .then(data => {
+                prediction.innerText = "Prediction: " + data.label;
+                confidence.innerText = "Confidence: " + data.confidence;
+              })
+      }, 1200);
+    </script>
 
 </body>
 
