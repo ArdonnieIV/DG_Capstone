@@ -28,7 +28,7 @@ poses = get_pose_names('clean')
 model = PoseFFNN(input_dim=69, output_dim=82)
 
 # Load the saved model parameters into the new model
-model.load_state_dict(torch.load('models/fnn_parameters.pth'))
+model.load_state_dict(torch.load('models/fnn_parameters.pth', map_location=device))
 model.to(device)
 
 def get_random_image():
