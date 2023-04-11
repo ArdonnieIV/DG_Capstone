@@ -60,7 +60,7 @@ def print_worst_cm(cm, total):
 
 def print_best_cm(cm, total):
 
-    print(f'Top {total} worst cases from Confusion Matrix.\n')
+    print(f'Top {total} best cases from Confusion Matrix.\n')
     poses = get_pose_names()
 
     allGoodScores = {}
