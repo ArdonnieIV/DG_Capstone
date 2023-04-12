@@ -134,12 +134,11 @@
               </div>
             </div>
           </div>
-          <div class="progress">
-            <div id="confBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+          <div class="progress mx-auto mt-3 shadow" style="width: 80%;">
+            <div id="confBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: 0%; background-color: red;">
               <span class="threshold"></span>
             </div>
           </div>
-
           <div id="prediction-container" class="text-center">
             <div class="row align-items-center justify-content-center">
               <div class="col-md-6">
@@ -162,6 +161,7 @@
         
         <footer class="mt-auto text-white-50">
           <p>Check out our <a href="https://github.com/ArdonnieIV/DG_Capstone" class="text-white">Github</a>!</p>
+          <p style="text-align: left;">DISCLAIMER: Your Online Guru and Assistant recommends consulting with your physician before starting any new fitness regime. Your Online Guru and Assistant is not a replacement for working with a trained yoga instructor. When participating in any exercise or exercise program, there is the possibility of physical injury. Any interaction with the application is at your own risk.</p>
         </footer>
     </div>
 
@@ -176,6 +176,8 @@
 
       var examplepose = null;
       var correctTotal = 5;
+      var timer = null;
+      var score = 0;
 
       function changeImage() {
           $.post("/change-image", function(data) {
@@ -189,8 +191,15 @@
           fetch('/predict')
               .then(response => response.json())
               .then(data => {
-                prediction.innerText = data.label;
+
                 var confFloat = (parseFloat(data.confidence) * 100);
+
+                if (confFloat > 30) {
+                  prediction.innerText = data.label;
+                }
+                else {
+                  prediction.innerText = "None";
+                }
 
                 if (data.label == examplepose) {
                   progressBar.style.width = confFloat.toFixed(2) + '%';
@@ -219,7 +228,7 @@
 
                 corrTotal.innerText = "Hold : " + correctTotal.toString();
               })
-      }, 800);
+      }, 500);
 
       window.addEventListener('load', function() {
         changeImage();
@@ -233,9 +242,6 @@
 
       setInterval(shiftBackground, 1000);
 
-      var timer = null;
-      var score = 0;
-
       function startCountdown() {
         var timeLeft = 60;
         var countdownElem = document.querySelector('.countdown-time');
@@ -243,6 +249,7 @@
         resetScore();
 
         timer = setInterval(function() {
+
           timeLeft--;
 
           var minutes = Math.floor(timeLeft / 60);
@@ -267,8 +274,10 @@
       });
 
       function updateScore() {
-        score++;
-        document.querySelector('#score').textContent = 'Score: ' + score;
+        if (timer) {
+          score++;
+          document.querySelector('#score').textContent = 'Score: ' + score;
+        }
       }
 
       function resetScore() {

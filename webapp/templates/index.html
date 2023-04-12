@@ -46,6 +46,21 @@
             text-align: center;
             margin-top: 20px;
         }
+
+        .progress {
+          position: relative; /* Make the progress container position relative */
+        }
+
+        .threshold {
+          position: absolute;
+          width: 5px;
+          height: 100%;
+          background-color: black;
+          left: 70%; /* Adjust the threshold position with percentage */
+          top: 50%; /* Adjust the threshold position with percentage */
+          transform: translateY(-50%); /* Center the threshold vertically */
+        }
+
     </style>
 
     <!-- Custom styles for this template -->
@@ -67,12 +82,18 @@
         </header>
 
         <main class="px-3">
-          <img src="{{ url_for('video') }}" class="img-fluid" alt="Responsive image">
+          <img src="/video" class="img-fluid" alt="Responsive image" style="width: 50%;"></img>
+          <div class="progress mx-auto mt-3 shadow" style="width:50%;">
+            <div id="confBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+              <span class="threshold"></span>
+            </div>
+          </div>
           <div id="prediction-container" class="text-center">
             <h3 id="pred" >None</h3>
             <h3 id="conf" >None</h3>
           </div>
         </main>
+        
         
         <footer class="mt-auto text-white-50">
           <p>Check out our <a href="https://github.com/ArdonnieIV/DG_Capstone" class="text-white">Github</a>!</p>
@@ -84,15 +105,30 @@
 
       const prediction = document.getElementById('pred');
       const confidence = document.getElementById('conf');
+      const progressBar = document.getElementById('confBar');
 
       setInterval(() => {
           fetch('/predict')
               .then(response => response.json())
               .then(data => {
-                prediction.innerText = "Prediction: " + data.label;
+
                 confidence.innerText = "Confidence: " + data.confidence;
+                var confFloat = (parseFloat(data.confidence) * 100);
+                progressBar.style.width = confFloat.toFixed(2) + '%';
+                if (confFloat > 30) {
+                  prediction.innerText = "Prediction: " + data.label;
+                }
+                else {
+                  prediction.innerText = "Prediction: None";
+                }
+                if (confFloat > 70) {
+                  progressBar.style.backgroundColor = "green";
+                }
+                else {
+                  progressBar.style.backgroundColor = "red";
+                }
               })
-      }, 1200);
+      }, 500);
     </script>
 
 </body>
