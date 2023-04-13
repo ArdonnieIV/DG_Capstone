@@ -43,8 +43,8 @@
         }
 
         #exampleImage {
-          width: 656px;
-          height: 481px;
+          width: 811px;
+          height: 600px;
           object-fit: fill;
         }
 
@@ -97,6 +97,16 @@
           font-weight: bold;
         }
 
+        #parentContainer {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+
+        #left, #right {
+          margin: 10px;
+        }
+
     </style>
 
     <!-- Custom styles for this template -->
@@ -120,8 +130,8 @@
         <main class="px-3">
           <div id="parentContainer">
             <div id="left">
-              <img src="{{ url_for('video') }}" class="img-fluid" alt="Responsive image">
-              <h2 id="pred" style="padding-top: 10px;" >None</h2>
+              <img src="/video" class="img-fluid" alt="Responsive image" style="width: 50em;">
+              <h2 id="pred" style="padding-top: 10px;">None</h2>
             </div>
             <div id="right">
               <div class="image-container">
@@ -130,7 +140,7 @@
                   <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"></path>
                   <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"></path>
                 </svg>
-              <h2 id="exam" style="padding-top: 10px;">None</h2>
+                <h2 id="exam" style="padding-top: 10px;">None</h2>
               </div>
             </div>
           </div>
@@ -160,8 +170,8 @@
         </main>
         
         <footer class="mt-auto text-white-50">
-          <p>Check out our <a href="https://github.com/ArdonnieIV/DG_Capstone" class="text-white">Github</a>!</p>
-          <p style="text-align: left;">DISCLAIMER: Your Online Guru and Assistant recommends consulting with your physician before starting any new fitness regime. Your Online Guru and Assistant is not a replacement for working with a trained yoga instructor. When participating in any exercise or exercise program, there is the possibility of physical injury. Any interaction with the application is at your own risk.</p>
+          <p style="font-size:larger;">Check out our <a href="https://github.com/ArdonnieIV/DG_Capstone" class="text-white">Github</a>!</p>
+          <p style="text-align: center;">DISCLAIMER: Your Online Guru and Assistant recommends consulting with your physician before starting any new fitness regiment. Your Online Guru and Assistant is not a replacement for working with a trained yoga instructor. When participating in any exercise or exercise program, there is the possibility of physical injury. Any interaction with the application is at your own risk.</p>
         </footer>
     </div>
 
