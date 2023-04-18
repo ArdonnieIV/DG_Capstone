@@ -1,5 +1,5 @@
 <video width="640" height="360" controls>
-  <source src="https://drive.google.com/uc?export=download&id=1B-zLwI321slWSg-RljTXzNA6IM4CZ4kO" type="video/mp4">
+  <source src="https://drive.google.com/file/d/1B-zLwI321slWSg-RljTXzNA6IM4CZ4kO/view?usp=share_link" type="video/mp4">
 </video>
 
 # Data Goblins 🔥 Modeling Human Behavior With Machine Learning 🤖
