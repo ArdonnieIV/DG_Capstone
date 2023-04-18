@@ -1,4 +1,6 @@
-<img src=yoga.gif width="300">
+<video width="640" height="360" controls>
+  <source src="https://drive.google.com/uc?export=download&id=1B-zLwI321slWSg-RljTXzNA6IM4CZ4kO" type="video/mp4">
+</video>
 
 # Data Goblins 🔥 Modeling Human Behavior With Machine Learning 🤖
 
@@ -30,3 +32,4 @@ Once you have Anaconda installed and you have a terminal open in this repository
 
 I highly recommend using vscode for this as it has the ability to detect environments and allows you to easily run jupyter notebooks with them.
 I believe there are some extensions you'll need for vscode. Try looking up Jupyter.
+<img src=yoga.gif width="300">
