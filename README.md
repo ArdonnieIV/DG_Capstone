@@ -4,26 +4,25 @@
 
 ## How to setup
 
-### First, download the compressed yoga folder
-
-When exporting, make sure to call the folder 'yoga' : https://drive.google.com/file/d/1-vz4RgA-VMX3J1UXMpWwZGkLEoutOdIs/view?usp=share_link
-
-### Second, you will need Python 3.7 specifically.
+### You will need Python 3.7 specifically.
 
 The easiest way to manage entire python versions is with Anaconda : https://www.anaconda.com/products/distribution
 
 Once you have Anaconda installed and you have a terminal open in this repository, you can run :
 
-# Create virtual environment
+### Create virtual environment
 ! conda create -n yourenv  python=3.7 pip
 
-# Activate your virtual environment
+### Activate your virtual environment
 ! conda activate yourenv
 
-# Install dependencies
+### Install dependencies
 ! pip install -r requirements.txt
 
-# Run The Webapp
+### Install Torch
+https://pytorch.org/get-started/locally/
+
+### Run The Webapp
 ! python -m webapp.py
 
 ## Notes

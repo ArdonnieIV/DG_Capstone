@@ -1,2 +1,8 @@
 opencv-contrib-python
 mediapipe
+flask
+ipython
+tqdm
+matplotlib
+seaborn
+scikit-learn
