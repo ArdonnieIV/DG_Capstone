@@ -1,5 +1,3 @@
-<img src=yoga.gif width="300">
-
 # Data Goblins 🔥 Modeling Human Behavior With Machine Learning 🤖
 
 ## How to setup
@@ -29,3 +27,5 @@ https://pytorch.org/get-started/locally/
 
 I highly recommend using vscode for this as it has the ability to detect environments and allows you to easily run jupyter notebooks with them.
 I believe there are some extensions you'll need for vscode. Try looking up Jupyter.
+
+<img src=yoga.gif width="300">
